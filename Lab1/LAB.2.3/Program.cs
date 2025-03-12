@@ -25,7 +25,7 @@ namespace LAB2._3
             months.Add("Листопад", 30);
             months.Add("Грудень", 31);
 
-            List<string> monthsWith30Days = (List<string>)months.Where(m => m.Value == 30).Select(m => m.Key).ToList();
+            List<string> monthsWith30Days = months.Where(m => m.Value == 30).Select(m => m.Key).ToList();
 
             Console.WriteLine("Місяці, що мають 30 днів:");
             foreach (string month in monthsWith30Days)
