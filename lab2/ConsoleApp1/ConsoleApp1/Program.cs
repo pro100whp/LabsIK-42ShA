@@ -1,10 +1,14 @@
 ﻿using System;
-
+using System.Text.Json;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
+using System.Xml.Linq;
+using System.Text.Json.Serialization;
 
 namespace ConsoleApp1
 {
@@ -42,7 +46,20 @@ namespace ConsoleApp1
             {
                 Console.WriteLine(("пересечение прямоугольников " + intersection.GetRectangleDescription()));
             }
+            //сериализуем обьект myRectangle в json и сохраняем в файл 
+            string serializedObject = JsonSerializer.Serialize(myRectangle);
+            File.WriteAllText(@"C:\Users\Public\Documents\myRectangle.Json", serializedObject);
+
+            //десериализуем обьет json
+            string jsonContent = File.ReadAllText(@"C:\Users\Public\Documents\myRectangle.Json");
             
+            Rectangle MyDeserializedRectangle = JsonSerializer.Deserialize<Rectangle>(jsonContent);
+            Console.WriteLine(("десериализованый обьект прямоугольника " + MyDeserializedRectangle.GetRectangleDescription()));
+
+
+
+
+
 
         }
     }
@@ -55,12 +72,17 @@ namespace ConsoleApp1
         public int height { get; set; }
 
         //координаты остальных 3-х углов 
+        [JsonIgnore]
         public int positionRightTopX { get { return x + width; } }
+        [JsonIgnore]
         public int positionRightTopY { get { return y; } }
+        [JsonIgnore]
         public int positionLeftBottomX { get { return x ; } }
+        [JsonIgnore]
         public int positionLeftBottomY { get { return y - height; } }
-        
+        [JsonIgnore]
         public int positionRightBottomX { get { return x + width; } }
+        [JsonIgnore]
         public int positionRightBottomY { get { return y - height; } }
 
         //конструктор без аргументов 
@@ -147,7 +169,19 @@ namespace ConsoleApp1
         {
             return string.Format("Rectangle left top corner is ({0},{1}),width {2},height {3}", this.x, this.y, this.width, this.height);
         }
+
+        //метод сериализации json
+        public  string SerializeToJson()
+        {
+            string serializedObject = JsonSerializer.Serialize(this);
+            return serializedObject;
             
+
+        }
+        public void DeSerializeFromJson(string serializedObject)
+        {
+
+        }
     }
 }
 
