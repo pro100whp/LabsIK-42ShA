@@ -43,7 +43,7 @@ namespace laboratorna4
                 return (this.size == other.size && this.articule == other.articule);
             }
 
-            public string ToString()
+            public override string ToString()
             {
                 string wear = ($"{this.GetName()} ,розмір {this.size} , артикул {this.articule}");
                 return wear;
@@ -55,7 +55,7 @@ namespace laboratorna4
                 return "одяг";
             }
 
-            public int GetHashCode()
+            public override int GetHashCode()
             {
                 string SizePlusArticule = this.size.ToString() + this.articule;
                 return SizePlusArticule.GetHashCode();

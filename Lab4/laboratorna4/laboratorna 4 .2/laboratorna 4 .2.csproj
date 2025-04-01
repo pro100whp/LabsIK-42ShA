@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{796C5E9E-B3BD-476B-BAFD-3602D1962E3F}</ProjectGuid>
+    <ProjectGuid>{0BDEB09C-8D29-40D1-83D3-7285BC6CE147}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>laboratorna4</RootNamespace>
-    <AssemblyName>laboratorna4</AssemblyName>
+    <RootNamespace>laboratorna_4._2</RootNamespace>
+    <AssemblyName>laboratorna_4._2</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -43,14 +43,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="baseClass\Parcel.cs" />
+    <Compile Include="document\Document.cs" />
+    <Compile Include="ParcelSorter\ParcelSorter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="standardParcel\standardParcel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="NewFolder1\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
