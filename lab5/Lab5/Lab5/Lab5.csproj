@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Building.cs" />
     <Compile Include="ICapacity.cs" />
+    <Compile Include="IRentalRate.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
