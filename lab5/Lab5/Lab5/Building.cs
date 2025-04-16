@@ -15,20 +15,22 @@ namespace Lab5
         public abstract string BuildingDate { get; set; }
 
         public Building(string buildingDate)
-        {     
+        {
+
         }
-            
-       
+
+
     }
-    public class PublicBuilding:Building
+
+    public class PublicBuilding : Building
     {
         public override string Address { get; set; }
         public override double BuildingArea { get; set; }
         public override string BuildingDate { get; set; }
 
-        public string Ownership {  get; set; }
-        
-        public PublicBuilding(string buildingDate, string ownership):base(buildingDate) 
+        public string Ownership { get; set; }
+
+        public PublicBuilding(string buildingDate, string ownership) : base(buildingDate)
         {
             BuildingDate = buildingDate;
             Ownership = ownership;
@@ -37,35 +39,43 @@ namespace Lab5
         {
             return $"Громадська споруда за адресою:{this.Address}, площею {this.BuildingArea}кв. метрів, збудованою {this.BuildingDate}";
         }
+        
     }
-    public class Cinema:PublicBuilding,ICapacity
+    public class Cinema : PublicBuilding, ICapacity
     {
-        public string Name {  get; set; }
+        public string Name { get; set; }
         public int NumberOfCinemaHalls { get; set; }
         public double PriceOfTicket { get; set; }
-        public Cinema(string buildingDate, string ownership):base(buildingDate, ownership)
+        public Cinema(string buildingDate, string ownership) : base(buildingDate, ownership)
         {
-            
+
         }
         public int GetCapacity()
         {
             //в зале 100 мест 
             return this.NumberOfCinemaHalls * 100;
         }
-        public double GetTicketPrice()
+        public double GetTicketPrice(int BegginigHour)
         {
-            return this.PriceOfTicket;
+            if (BegginigHour < 14)
+            {
+                return this.PriceOfTicket;
+            }
+            else
+            {
+                return this.PriceOfTicket * 1.3;
+            }
         }
         public override string ToString()
         {
             return $"Кінотеатр площею {this.BuildingArea}кв. метрів, збудовано {this.BuildingDate}";
         }
     }
-    public class Hotel:PublicBuilding,ICapacity,IRentalRate
+    public class Hotel : PublicBuilding, ICapacity, IRentalRate
     {
         public string Name { get; set; }
         public int NumberOfRoom { get; set; }
-        public int NumberOfStars { get; set; }  
+        public int NumberOfStars { get; set; }
         public double RoomPrice { get; set; }
         public Hotel(string buildingDate, string ownership) : base(buildingDate, ownership)
         {
@@ -85,7 +95,7 @@ namespace Lab5
             return $"Готель площею {this.BuildingArea}кв. метрів, збудовано {this.BuildingDate}";
         }
     }
-    public class Restaraunt : PublicBuilding,ICapacity
+    public class Restaraunt : PublicBuilding, ICapacity
     {
         public string Name { get; set; }
         public int NumberOfSeats { get; set; }
@@ -96,7 +106,7 @@ namespace Lab5
         }
         public int GetCapacity()
         {
-            
+
             return this.NumberOfSeats;
         }
         public override string ToString()
@@ -119,9 +129,9 @@ namespace Lab5
         {
             return $"Житлова споруда за адресою:{this.Address}, площею {this.BuildingArea}кв. метрів,збудовано {this.BuildingDate}";
         }
-        
+
     }
-    public class FiveStoreyBuilding:ResidentialBuilding,ICapacity,IRentalRate
+    public class FiveStoreyBuilding : ResidentialBuilding, ICapacity, IRentalRate
     {
         public int NumberOfApartments { get; set; }
         public double PricePerSqM { get; set; }
@@ -129,9 +139,9 @@ namespace Lab5
 
         public FiveStoreyBuilding(string buildingDate, int numberOfApartments) : base(buildingDate)
         {
-            BuildingDate = buildingDate;
-            NumberOfApartments = numberOfApartments;
             
+            NumberOfApartments = numberOfApartments;
+
         }
         public int GetCapacity()
         {
@@ -142,7 +152,7 @@ namespace Lab5
         {
             return $"Житловий будинок 5 поверхів за адресою:{this.Address},площею {this.BuildingArea}кв. метрів ,з {this.NumberOfApartments} квартирами, збудовано {this.BuildingDate}";
         }
-        public  double GetRentalRate()
+        public double GetRentalRate()
         {
             return this.BuildingArea / this.NumberOfApartments * this.PricePerSqM;
         }

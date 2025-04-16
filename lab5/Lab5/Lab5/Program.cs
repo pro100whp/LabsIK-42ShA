@@ -21,6 +21,13 @@ namespace Lab5
             Multiplex.BuildingArea = 2000;
             buildings.Add(Multiplex);
 
+            Cinema OdessaKino = new Cinema("08.12.2015", "Комунальна власність");
+            OdessaKino.Name = "OdessaKino";
+            OdessaKino.NumberOfCinemaHalls = 5;
+            OdessaKino.PriceOfTicket = 180;
+            OdessaKino.BuildingArea = 2500;
+            buildings.Add(OdessaKino);
+
             Hotel Eleon = new Hotel("01.01.2007", "Приватна власність");
             Eleon.Name = "Eleon";
             Eleon.NumberOfStars = 5;
@@ -37,7 +44,7 @@ namespace Lab5
             buildings.Add(Gaga);
 
             FiveStoreyBuilding fiveStoreyBuilding = new FiveStoreyBuilding("30.10.1985", 50);
-            fiveStoreyBuilding.Address = "Kiyv , Zsustret 5";
+            fiveStoreyBuilding.Address = "Kiyv, Zsustret 5";
             fiveStoreyBuilding.PricePerSqM = 350;
             fiveStoreyBuilding.BuildingArea = 2500;
             buildings.Add (fiveStoreyBuilding);
@@ -50,27 +57,26 @@ namespace Lab5
             {
                 //выведем описание обьекта 
                 Console.WriteLine(building.ToString());
+
                 if (building is Cinema)
                 {
                     Cinema cinema = (Cinema)building;
                     Console.WriteLine($"Кінотеатр '{cinema.Name}' має місткість {cinema.GetCapacity()}");
-                    Console.WriteLine($"Ціна квитка: {cinema.GetTicketPrice()}");
+                    Console.WriteLine($"Ціна квитка до 14:00: {cinema.GetTicketPrice(10)}");
+                    Console.WriteLine($"Ціна квитка після 14:00: {cinema.GetTicketPrice(20)}");
                 }
-
                 else if (building is Hotel)
                 {
                     Hotel hotel = (Hotel)building;
                     Console.WriteLine($"Готель '{hotel.Name}' має місткість {hotel.GetCapacity()}");
                     Console.WriteLine($"Ціна оренди одного номеру: {hotel.GetRentalRate()} ");
                 }
-
                 else if (building is Restaraunt)
                 {
                     Restaraunt restaraunt = (Restaraunt)building;
                     Console.WriteLine($"Ресторан '{restaraunt.Name}' має місткість {restaraunt.GetCapacity()}");
                     
                 }
-
                 else if (building is FiveStoreyBuilding)
                 {
                     FiveStoreyBuilding storeyBuilding5 = (FiveStoreyBuilding)building;
