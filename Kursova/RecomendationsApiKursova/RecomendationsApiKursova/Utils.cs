@@ -81,7 +81,7 @@ namespace RecomendationsApiKursova
     {
         
         
-        //public static string ConnectionString = "Host=database-2.c5ug4y6mymme.eu-north-1.rds.amazonaws.com;Port=5432;Username=postgres;Password=4BewwwCNk#KVH_t;Database=postgres";
+        
         public static List<string> GetMoviesOrBooks(long telegram_id, string type)
         {
             var result = new List<string>();
