@@ -1,0 +1,6 @@
+@RecomendationsApiKursova_HostAddress = http://localhost:5049
+
+GET {{RecomendationsApiKursova_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
