@@ -94,14 +94,14 @@ namespace RecomendationsApiKursova
     public class MoviesAndBooks
     {
 
-        public static string GetRecommendationSummary(string books)
+        public static string GetRecommendationSummary(string bookOrMovie, string type)
         {
             var apiKey = "WnisWZdQpLlt1xcNftFfo4Y8UktxfeHGPF1Qgg9D";
             var client = new CohereClient(apiKey);
-            string DelimitedList = string.Join(", ", books.Select(v => $"\"{v}\""));
+            string DelimitedList = string.Join(", ", bookOrMovie.Select(v => $"\"{v}\""));
 
 
-            string input = $"give me a summary 350 words of the book: {DelimitedList}.";
+            string input = $"give me a summary 350 words of the   {type}: {DelimitedList}.";
             //string input = $"ДАЙ ВІДПОВІДЬ УКРАЇНСЬКОЮ МОВОЮ!Я люблю {type} {DelimitedList}. Порекомендуй мені 3 схожих {type}. Вивід тільки українською. Для кожного пункту: назва жирним (**), рік у дужках, короткий опис (до 25 слів). Без вступів і завершень. Без пояснень. Просто список у заданому форматі. Між пунктами — порожній рядок.";
 
 
@@ -177,7 +177,7 @@ namespace RecomendationsApiKursova
             string DelimitedList = string.Join(", ", moviesOrBooks.Select(v => $"\"{v}\""));
 
 
-            string input = $"I like {type}s {DelimitedList}.Please recommend me something similar, 1 {type}s.Give me answer in form of structured json with \"title\", \"description\"(description is short ,clear and max 25 words), \"YearOfProduction\" without aditional text DO NOT WRITE Here are some movies similar to..., DO NOT WRITE ANYTHING ELSE BUT JSON";
+            string input = $"I like {type}s {DelimitedList}.Please recommend me something similar, 3 {type}s.Give me answer in form of structured json with \"title\", \"description\"(description is short ,clear and max 25 words), \"YearOfProduction\" without aditional text DO NOT WRITE Here are some movies similar to..., DO NOT WRITE ANYTHING ELSE BUT JSON";
             //string input = $"ДАЙ ВІДПОВІДЬ УКРАЇНСЬКОЮ МОВОЮ!Я люблю {type} {DelimitedList}. Порекомендуй мені 3 схожих {type}. Вивід тільки українською. Для кожного пункту: назва жирним (**), рік у дужках, короткий опис (до 25 слів). Без вступів і завершень. Без пояснень. Просто список у заданому форматі. Між пунктами — порожній рядок.";
 
           
@@ -216,12 +216,12 @@ namespace RecomendationsApiKursova
             return response;
         }
 
-        public static string GetRecommendationsTogether(List<string> movies, List<string>  books,string type)
+        public static string GetRecommendationsTogether(List<string> movie, List<string>  book,string type)
         {
             var apiKey = "WnisWZdQpLlt1xcNftFfo4Y8UktxfeHGPF1Qgg9D";
             var client = new CohereClient(apiKey);
-            string DelimitedListMovies = string.Join(", ", movies.Select(v => $"\"{v}\""));
-            string DelimitedListBooks = string.Join(", ", movies.Select(v => $"\"{v}\""));
+            string DelimitedListMovies = string.Join(", ", movie.Select(v => $"\"{v}\""));
+            string DelimitedListBooks = string.Join(", ", book.Select(v => $"\"{v}\""));
 
             string input = $"I like such books{DelimitedListBooks} and such films {DelimitedListMovies}.Please recommend me something similar, 3 {type}s.Give me answer in form of structured json with \"title\", \"description\"(description is short ,clear and max 25 words), \"YearOfProduction\" without aditional text DO NOT WRITE Here are some movies similar to..., DO NOT WRITE ANYTHING ELSE BUT JSON";
             //string input = $"ДАЙ ВІДПОВІДЬ УКРАЇНСЬКОЮ МОВОЮ!Я люблю {type} {DelimitedList}. Порекомендуй мені 3 схожих {type}. Вивід тільки українською. Для кожного пункту: назва жирним (**), рік у дужках, короткий опис (до 25 слів). Без вступів і завершень. Без пояснень. Просто список у заданому форматі. Між пунктами — порожній рядок.";
@@ -317,6 +317,40 @@ namespace RecomendationsApiKursova
 
             return result;
         }
+
+        public static List<string> GetFavouriteMoviesOrBooks(long telegram_id, string type)
+        {
+            var result = new List<string>();
+
+            using (var connection = new NpgsqlConnection(DataBaseSecret.GetConnectionString()))
+            {
+                connection.Open();
+
+                var query = @"
+            SELECT title, rating 
+            FROM books_and_movies 
+            WHERE telegram_id = @telegram_id AND type = @type AND is_favorite = true";
+
+                using (var command = new NpgsqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("telegram_id", telegram_id);
+                    command.Parameters.AddWithValue("type", type);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var title = reader.GetString(0);
+                            
+                            result.Add($"{title}");
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
 
         public static void AddMovieOrBook(long telegram_id, string title, string type, int rating, bool is_favorite)
         {

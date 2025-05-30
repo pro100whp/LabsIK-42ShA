@@ -27,11 +27,11 @@ namespace RecomendationsApiKursova.Controllers
         }
 
         [HttpGet]
-        [Route("api/summary/{telegram_id}")]
-        public string GetSummarry(long telegram_id)
+        [Route("api/summary/{type}/{bookOrMovie}/{telegram_id}")]
+        public string GetSummarry(long telegram_id, string bookOrMovie, string type)
         {
 
-            return MoviesAndBooks.GetRecommendationSummary(MoviesAndBooks.GetRecommendations(MoviesAndBooks.GetMoviesOrBooks(telegram_id, "book"), "book"));
+            return MoviesAndBooks.GetRecommendationSummary(bookOrMovie, type);
         }
 
         [HttpGet]
@@ -95,7 +95,17 @@ namespace RecomendationsApiKursova.Controllers
             return MoviesAndBooks.GetMoviesOrBooksSortedByRating(telegram_id, type);
         }
 
-        
+        [HttpGet]
+        [Route("api/{type}/isfavorite/get/{telegram_id}")]
+        public IEnumerable<string> GetBooksOrMoviesIsFavorite(long telegram_id, string type)
+        {
+
+            return MoviesAndBooks.GetFavouriteMoviesOrBooks(telegram_id, type);
+        }
+
+
+
+
 
         // POST: http://localhost:5000/api/books/add/123456789
         [HttpPost]
