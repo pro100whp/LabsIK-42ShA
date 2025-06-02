@@ -37,60 +37,133 @@ class Program
         string text = message.Text.ToLower();
 
         Console.WriteLine($"{message.Chat.Username}    {message.Text}");
-        //                              СОСТОЯНИЯ
+        //                                        СОСТОЯНИЯ
         if (userStates.TryGetValue(chatId, out var state) && state == "waiting_for_similar_book")
         {
-            userStates[chatId] = ""; 
-
-            var json = System.Text.Json.JsonSerializer.Serialize(new[] { message.Text });
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            try
+            if (text == "відмінити")
             {
-                var response = await httpClient.PostAsync("http://13.53.190.164:5000/api/recommendations/book", content);
-                response.EnsureSuccessStatusCode();
+                // Скидаємо стан і тимчасові дані
+                userStates.TryRemove(chatId, out _);
+                userTempData.TryRemove(chatId, out _);
 
-                var responseText = await response.Content.ReadAsStringAsync();
+                // Відправляємо назад головне меню
+                var mainMenu = new ReplyKeyboardMarkup(new[]
+                {
+                    new[] { new KeyboardButton("🔎 Порекомендувати"), new KeyboardButton("📚 Моє переглянуте") },
+                    new[] { new KeyboardButton("⭐ Рейтинг"),         new KeyboardButton("💖 Улюблене")      },
+                        })
+                { ResizeKeyboard = true };
 
-                await botClient.SendMessage(chatId, $"📚 Рекомендації:\n{responseText}");
+                await botClient.SendMessage(
+                    chatId,
+                    "❌ Скасовано. Повертаємось у головне меню.",
+                    replyMarkup: mainMenu,
+                    cancellationToken: token
+                );
+                return;  // більше нічого не обробляємо
             }
-            catch (Exception ex)
+            else
             {
-                await botClient.SendMessage(chatId, $"⚠️ Помилка: {ex.Message}");
+                userStates[chatId] = "";
+
+                var json = System.Text.Json.JsonSerializer.Serialize(new[] { message.Text });
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                try
+                {
+                    var response = await httpClient.PostAsync("http://13.53.190.164:5000/api/recommendations/book", content);
+                    response.EnsureSuccessStatusCode();
+
+                    var responseText = await response.Content.ReadAsStringAsync();
+
+                    await botClient.SendMessage(chatId, $"📚 Рекомендації:\n{responseText}");
+                }
+                catch (Exception ex)
+                {
+                    await botClient.SendMessage(chatId, $"⚠️ Помилка: {ex.Message}");
+                }
             }
         }
 
         if (userStates.TryGetValue(chatId, out var state1) && state1 == "waiting_for_similar_movie")
         {
-            userStates[chatId] = ""; 
-
-            var json = System.Text.Json.JsonSerializer.Serialize(new[] { message.Text });
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            try
+            if (text == "відмінити")
             {
-                var response = await httpClient.PostAsync("http://13.53.190.164:5000/api/recommendations/movie", content);
-                response.EnsureSuccessStatusCode();
+                // Скидаємо стан і тимчасові дані
+                userStates.TryRemove(chatId, out _);
+                userTempData.TryRemove(chatId, out _);
 
-                var responseText = await response.Content.ReadAsStringAsync();
+                // Відправляємо назад головне меню
+                var mainMenu = new ReplyKeyboardMarkup(new[]
+                {
+                    new[] { new KeyboardButton("🔎 Порекомендувати"), new KeyboardButton("📚 Моє переглянуте") },
+                    new[] { new KeyboardButton("⭐ Рейтинг"),         new KeyboardButton("💖 Улюблене")      },
+                        })
+                { ResizeKeyboard = true };
 
-                await botClient.SendMessage(chatId, $"📚 Рекомендації:\n{responseText}");
+                await botClient.SendMessage(
+                    chatId,
+                    "❌ Скасовано. Повертаємось у головне меню.",
+                    replyMarkup: mainMenu,
+                    cancellationToken: token
+                );
+                return;  // більше нічого не обробляємо
             }
-            catch (Exception ex)
+            else
             {
-                await botClient.SendMessage(chatId, $"⚠️ Помилка: {ex.Message}");
+                userStates[chatId] = "";
+
+                var json = System.Text.Json.JsonSerializer.Serialize(new[] { message.Text });
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                try
+                {
+                    var response = await httpClient.PostAsync("http://13.53.190.164:5000/api/recommendations/movie", content);
+                    response.EnsureSuccessStatusCode();
+
+                    var responseText = await response.Content.ReadAsStringAsync();
+
+                    await botClient.SendMessage(chatId, $"📚 Рекомендації:\n{responseText}");
+                }
+                catch (Exception ex)
+                {
+                    await botClient.SendMessage(chatId, $"⚠️ Помилка: {ex.Message}");
+                }
             }
         }
 
         if (userStates.TryGetValue(chatId, out var state2) && state2 == "waiting_for_title")
         {
-            
-            
+            if (text == "відмінити")
+            {
+                // Скидаємо стан і тимчасові дані
+                userStates.TryRemove(chatId, out _);
+                userTempData.TryRemove(chatId, out _);
+
+                // Відправляємо назад головне меню
+                var mainMenu = new ReplyKeyboardMarkup(new[]
+                {
+                    new[] { new KeyboardButton("🔎 Порекомендувати"), new KeyboardButton("📚 Моє переглянуте") },
+                    new[] { new KeyboardButton("⭐ Рейтинг"),         new KeyboardButton("💖 Улюблене")      },
+                        })
+                { ResizeKeyboard = true };
+
+                await botClient.SendMessage(
+                    chatId,
+                    "❌ Скасовано. Повертаємось у головне меню.",
+                    replyMarkup: mainMenu,
+                    cancellationToken: token
+                );
+                return;  // більше нічого не обробляємо
+            }
+            else
+            {
+
                 userStates[chatId] = "waiting_for_rating";
                 if (userTempData.TryGetValue(chatId, out var draft))
                 {
                     draft.title = message.Text;
-                    
+
                 }
 
                 var keyboard = new ReplyKeyboardMarkup(new[]
@@ -108,217 +181,338 @@ class Program
                     await botClient.SendMessage(chatId, "📊 Вкажи рейтинг фільма (1–5):", replyMarkup: keyboard);
 
                 }
-            
-            return;
+
+                return;
+            }
         }
 
         if (userStates.TryGetValue(chatId, out state) && state == "waiting_for_rating")
         {
-            if (int.TryParse(message.Text, out int rating) && rating >= 1 && rating <= 5)
+            if (text == "відмінити")
             {
-                userStates[chatId] = "waiting_for_favorite";
+                // Скидаємо стан і тимчасові дані
+                userStates.TryRemove(chatId, out _);
+                userTempData.TryRemove(chatId, out _);
 
-                if (userTempData.TryGetValue(chatId, out var Draft))
+                // Відправляємо назад головне меню
+                var mainMenu = new ReplyKeyboardMarkup(new[]
                 {
-                    Draft.rating = rating;
-                    var keyboard = new ReplyKeyboardMarkup(new[]
-                    {new[]
+                    new[] { new KeyboardButton("🔎 Порекомендувати"), new KeyboardButton("📚 Моє переглянуте") },
+                    new[] { new KeyboardButton("⭐ Рейтинг"),         new KeyboardButton("💖 Улюблене")      },
+                        })
+                { ResizeKeyboard = true };
+
+                await botClient.SendMessage(
+                    chatId,
+                    "❌ Скасовано. Повертаємось у головне меню.",
+                    replyMarkup: mainMenu,
+                    cancellationToken: token
+                );
+                return;  // більше нічого не обробляємо
+            }
+            else
+            {
+                if (int.TryParse(message.Text, out int rating) && rating >= 1 && rating <= 5)
+                {
+                    userStates[chatId] = "waiting_for_favorite";
+
+                    if (userTempData.TryGetValue(chatId, out var Draft))
+                    {
+                        Draft.rating = rating;
+                        var keyboard = new ReplyKeyboardMarkup(new[]
+                        {new[]
                     {
                         new KeyboardButton("Так"),
                         new KeyboardButton("Ні") }
                     })
 
-                    { ResizeKeyboard = true };
-                    if (Draft.Type == "book")
-                    {
-                        await botClient.SendMessage(chatId, "💖 Чи є ця книжка улюбленою?", replyMarkup: keyboard);
-                    }
-                    else if (Draft.Type == "movie")
-                    {
-                        await botClient.SendMessage(chatId, "💖 Чи є цей фільм улюбленим?", replyMarkup: keyboard);
+                        { ResizeKeyboard = true };
+                        if (Draft.Type == "book")
+                        {
+                            await botClient.SendMessage(chatId, "💖 Чи є ця книжка улюбленою?", replyMarkup: keyboard);
+                        }
+                        else if (Draft.Type == "movie")
+                        {
+                            await botClient.SendMessage(chatId, "💖 Чи є цей фільм улюбленим?", replyMarkup: keyboard);
+
+                        }
 
                     }
-                    
                 }
-            }
-            else
-            {
-                await botClient.SendMessage(chatId, "⚠️ Введи число від 1 до 5.");
+                else
+                {
+                    await botClient.SendMessage(chatId, "⚠️ Введи число від 1 до 5.");
+                }
             }
         }
 
         if (userStates.TryGetValue(chatId, out state) && state == "waiting_for_favorite")
         {
-            if (userTempData.TryGetValue(chatId, out var Draft))
+            if (text == "відмінити")
             {
-                if (text == "так")
-                {
-                    Draft.is_favorite = true;
-                }
-                else if (text == "ні")
-                {
-                    Draft.is_favorite = false;
-                }
-                else
-                {
-                    await botClient.SendMessage(chatId, "⚠️ Напиши 'Так' або 'Ні'.");
-                    return;
-                }
+                // Скидаємо стан і тимчасові дані
+                userStates.TryRemove(chatId, out _);
+                userTempData.TryRemove(chatId, out _);
 
-                userStates[chatId] = ""; // очищаємо стан
-
-                var keyboard = new ReplyKeyboardMarkup(new[]
+                // Відправляємо назад головне меню
+                var mainMenu = new ReplyKeyboardMarkup(new[]
                 {
+                    new[] { new KeyboardButton("🔎 Порекомендувати"), new KeyboardButton("📚 Моє переглянуте") },
+                    new[] { new KeyboardButton("⭐ Рейтинг"),         new KeyboardButton("💖 Улюблене")      },
+                        })
+                { ResizeKeyboard = true };
+
+                await botClient.SendMessage(
+                    chatId,
+                    "❌ Скасовано. Повертаємось у головне меню.",
+                    replyMarkup: mainMenu,
+                    cancellationToken: token
+                );
+                return;  // більше нічого не обробляємо
+            }
+            else
+            {
+                if (userTempData.TryGetValue(chatId, out var Draft))
+                {
+                    if (text == "так")
+                    {
+                        Draft.is_favorite = true;
+                    }
+                    else if (text == "ні")
+                    {
+                        Draft.is_favorite = false;
+                    }
+                    else
+                    {
+                        await botClient.SendMessage(chatId, "⚠️ Напиши 'Так' або 'Ні'.");
+                        return;
+                    }
+
+                    userStates[chatId] = ""; // очищаємо стан
+
+                    var keyboard = new ReplyKeyboardMarkup(new[]
+                    {
 
                     new[] { new KeyboardButton("🔎 Порекомендувати") },
                     new[] { new KeyboardButton("📚 Моє переглянуте") },
                     new[] { new KeyboardButton("⭐ Рейтинг") }
                 })
-                {
-                    ResizeKeyboard = true
-                };
-                var json = JsonSerializer.Serialize(new { title = Draft.title });
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    {
+                        ResizeKeyboard = true
+                    };
+                    var json = JsonSerializer.Serialize(new { title = Draft.title });
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var userId = message.From.Id;
-                var url = "";
-                if (Draft.Type == "book")
-                {
-                     url = $"http://13.53.190.164:5000/api/book/add/{Draft.title}/{Draft.rating}/{Draft.is_favorite}/{userId}";
-                }
-                else if (Draft.Type == "movie")
-                {
-                     url = $"http://13.53.190.164:5000/api/movie/add/{Draft.title}/{Draft.rating}/{Draft.is_favorite}/{userId}";
-                    
-                }
-                
-
-                try
-                {
-                    var response = await httpClient.PostAsync(url, content);
-                    response.EnsureSuccessStatusCode();
-
-                    
-
+                    var userId = message.From.Id;
+                    var url = "";
                     if (Draft.Type == "book")
                     {
-                        await botClient.SendMessage(chatId, "✅ Книжку успішно додано!", replyMarkup: keyboard,
-            cancellationToken: token);
+                        url = $"http://13.53.190.164:5000/api/book/add/{Draft.title}/{Draft.rating}/{Draft.is_favorite}/{userId}";
                     }
                     else if (Draft.Type == "movie")
                     {
-                        await botClient.SendMessage(chatId, "✅ Фільм успішно додано!", replyMarkup: keyboard,
-            cancellationToken: token);
+                        url = $"http://13.53.190.164:5000/api/movie/add/{Draft.title}/{Draft.rating}/{Draft.is_favorite}/{userId}";
 
                     }
-                }
-                catch (Exception ex)
-                {
-                    await botClient.SendMessage(chatId, $"⚠️ Помилка під час додавання книжки: {ex.Message}");
-                }
 
-                userTempData.TryRemove(chatId, out _); 
+
+                    try
+                    {
+                        var response = await httpClient.PostAsync(url, content);
+                        response.EnsureSuccessStatusCode();
+
+
+
+                        if (Draft.Type == "book")
+                        {
+                            await botClient.SendMessage(chatId, "✅ Книжку успішно додано!", replyMarkup: keyboard,
+                cancellationToken: token);
+                        }
+                        else if (Draft.Type == "movie")
+                        {
+                            await botClient.SendMessage(chatId, "✅ Фільм успішно додано!", replyMarkup: keyboard,
+                cancellationToken: token);
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        await botClient.SendMessage(chatId, $"⚠️ Помилка під час додавання книжки: {ex.Message}");
+                    }
+
+                    userTempData.TryRemove(chatId, out _);
+                }
             }
         }
 
         if (userStates.TryGetValue(chatId, out string state5) && state5 == "waiting_for_delete")
         {
-            userStates[chatId] = ""; // очищаємо стан
-            if (int.TryParse(message.Text, out int number)
-                && userTempData.TryGetValue(chatId, out Draft draft)
-                && draft.booksOrMooviesList != null
-                && number >= 1 && number <= draft.booksOrMooviesList.Count)
-
-
+            if (text == "відмінити")
             {
-                var keyboard = new ReplyKeyboardMarkup(new[]
-               {
+                // Скидаємо стан і тимчасові дані
+                userStates.TryRemove(chatId, out _);
+                userTempData.TryRemove(chatId, out _);
+
+                // Відправляємо назад головне меню
+                var mainMenu = new ReplyKeyboardMarkup(new[]
+                {
+                    new[] { new KeyboardButton("🔎 Порекомендувати"), new KeyboardButton("📚 Моє переглянуте") },
+                    new[] { new KeyboardButton("⭐ Рейтинг"),         new KeyboardButton("💖 Улюблене")      },
+                        })
+                { ResizeKeyboard = true };
+
+                await botClient.SendMessage(
+                    chatId,
+                    "❌ Скасовано. Повертаємось у головне меню.",
+                    replyMarkup: mainMenu,
+                    cancellationToken: token
+                );
+                return;  // більше нічого не обробляємо
+            }
+            else
+            {
+                userStates[chatId] = ""; // очищаємо стан
+                if (int.TryParse(message.Text, out int number)
+                    && userTempData.TryGetValue(chatId, out Draft draft)
+                    && draft.booksOrMooviesList != null
+                    && number >= 1 && number <= draft.booksOrMooviesList.Count)
+
+
+                {
+                    var keyboard = new ReplyKeyboardMarkup(new[]
+                   {
 
                     new[] { new KeyboardButton("🔎 Порекомендувати") },
                     new[] { new KeyboardButton("📚 Моє переглянуте") },
                     new[] { new KeyboardButton("⭐ Рейтинг") }
                 })
-                {
-                    ResizeKeyboard = true
-                };
+                    {
+                        ResizeKeyboard = true
+                    };
 
-                var selectedLine = draft.booksOrMooviesList[number - 1];
-                var title = selectedLine.Substring(selectedLine.IndexOf('.') + 1).Trim();
-                title = title.Trim('"');
-                var userId = message.From.Id;
-                Console.WriteLine(title);
-                
-                try
-                {
-                    var url = $"http://13.53.190.164:5000/api/{draft.Type}/delete/{title}/{userId}";
-                    var response = await httpClient.DeleteAsync(url);
-                    response.EnsureSuccessStatusCode();
+                    var selectedLine = draft.booksOrMooviesList[number - 1];
+                    var title = selectedLine.Substring(selectedLine.IndexOf('.') + 1).Trim();
+                    title = title.Trim('"');
+                    var userId = message.From.Id;
+                    Console.WriteLine(title);
 
-                    await botClient.SendMessage(chatId, $"✅ Книжку \"{title}\" успішно видалено.", replyMarkup: keyboard,
-            cancellationToken: token);
+                    try
+                    {
+                        var url = $"http://13.53.190.164:5000/api/{draft.Type}/delete/{title}/{userId}";
+                        var response = await httpClient.DeleteAsync(url);
+                        response.EnsureSuccessStatusCode();
+                        if (draft.Type == "book")
+                        {
+                            await botClient.SendMessage(chatId, $"✅ Книжку \"{title}\" успішно видалено.", replyMarkup: keyboard,
+                cancellationToken: token);
+                        }
+                        else if (draft.Type == "movie")
+                        {
+                            await botClient.SendMessage(chatId, $"✅ Фільм \"{title}\" успішно видалено.", replyMarkup: keyboard,
+                cancellationToken: token);
+
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        await botClient.SendMessage(chatId, $"⚠️ Помилка під час видалення книжки: {ex.Message}", replyMarkup: keyboard,
+                cancellationToken: token);
+                    }
+
+
                 }
-                catch (Exception ex)
+                else
                 {
-                    await botClient.SendMessage(chatId, $"⚠️ Помилка під час видалення книжки: {ex.Message}", replyMarkup: keyboard,
-            cancellationToken: token);
+                    await botClient.SendMessage(chatId, "❗ Введи коректний номер книжки зі списку.");
                 }
-
-              
-            }
-            else
-            {
-                await botClient.SendMessage(chatId, "❗ Введи коректний номер книжки зі списку.");
             }
         }
 
         if (userStates.TryGetValue(chatId, out string state6) && state6 == "waiting_for_summary")
         {
-            userStates[chatId] = ""; // очищаємо стан
-            if (int.TryParse(message.Text, out int number)
-                && userTempData.TryGetValue(chatId, out Draft draft)
-                && draft.booksOrMooviesList != null
-                && number >= 1 && number <= draft.booksOrMooviesList.Count)
-
-
+            if (text == "відмінити")
             {
-                var keyboard = new ReplyKeyboardMarkup(new[]
-               {
+                // Скидаємо стан і тимчасові дані
+                userStates.TryRemove(chatId, out _);
+                userTempData.TryRemove(chatId, out _);
+
+                // Відправляємо назад головне меню
+                var mainMenu = new ReplyKeyboardMarkup(new[]
+                {
+                    new[] { new KeyboardButton("🔎 Порекомендувати"), new KeyboardButton("📚 Моє переглянуте") },
+                    new[] { new KeyboardButton("⭐ Рейтинг"),         new KeyboardButton("💖 Улюблене")      },
+                        })
+                { ResizeKeyboard = true };
+
+                await botClient.SendMessage(
+                    chatId,
+                    "❌ Скасовано. Повертаємось у головне меню.",
+                    replyMarkup: mainMenu,
+                    cancellationToken: token
+                );
+                return;  // більше нічого не обробляємо
+            }
+            else
+            {
+                userStates[chatId] = ""; // очищаємо стан
+                if (int.TryParse(message.Text, out int number)
+                    && userTempData.TryGetValue(chatId, out Draft draft)
+                    && draft.booksOrMooviesList != null
+                    && number >= 1 && number <= draft.booksOrMooviesList.Count)
+
+
+                {
+                    var keyboard = new ReplyKeyboardMarkup(new[]
+                   {
 
                     new[] { new KeyboardButton("🔎 Порекомендувати") },
                     new[] { new KeyboardButton("📚 Моє переглянуте") },
                     new[] { new KeyboardButton("⭐ Рейтинг") }
                 })
-                {
-                    ResizeKeyboard = true
-                };
+                    {
+                        ResizeKeyboard = true
+                    };
 
-                var selectedLine = draft.booksOrMooviesList[number - 1];
-                var title = selectedLine.Substring(selectedLine.IndexOf('.') + 1).Trim();
-                title = title.Trim('"');
-                var userId = message.From.Id;
-                Console.WriteLine(title);
+                    var selectedLine = draft.booksOrMooviesList[number - 1];
+                    var title = selectedLine.Substring(selectedLine.IndexOf('.') + 1).Trim();
+                    title = title.Trim('"');
+                    var userId = message.From.Id;
+                    Console.WriteLine(title);
 
-                try
-                {
-                    var url = $"http://13.53.190.164:5000/api/summary/{draft.Type}/{title}/{userId}";
-                    var response = await httpClient.GetAsync(url);
-                    response.EnsureSuccessStatusCode();
-                    var summaryText = await response.Content.ReadAsStringAsync();
-                    await botClient.SendMessage(chatId, $"📖 Переказ книги:\n\n{summaryText}", replyMarkup: keyboard, cancellationToken: token);
+                    try
+                    {
+                        var url = $"http://13.53.190.164:5000/api/summary/{draft.Type}/{title}/{userId}";
+                        var response = await httpClient.GetAsync(url);
+                        response.EnsureSuccessStatusCode();
+                        var summaryText = await response.Content.ReadAsStringAsync();
+
+
+                        if (draft.Type == "book")
+                        {
+                            await botClient.SendMessage(chatId, $"📖 Переказ книги:\n\n{summaryText}", replyMarkup: keyboard, cancellationToken: token);
+                        }
+                        else if (draft.Type == "movie")
+                        {
+                            await botClient.SendMessage(chatId, $"📖 Переказ фільму:\n\n{summaryText}", replyMarkup: keyboard, cancellationToken: token);
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        await botClient.SendMessage(chatId, $"⚠️ Помилка : {ex.Message}", replyMarkup: keyboard,
+                cancellationToken: token);
+                    }
+
+
                 }
-                catch (Exception ex)
+                else
                 {
-                    await botClient.SendMessage(chatId, $"⚠️ Помилка : {ex.Message}", replyMarkup: keyboard,
-            cancellationToken: token);
+                    await botClient.SendMessage(chatId, "❗ Введи коректний номер книжки зі списку.");
                 }
-
-
-            }
-            else
-            {
-                await botClient.SendMessage(chatId, "❗ Введи коректний номер книжки зі списку.");
             }
         }
+       
 
         if (text == "/start")
         {
@@ -329,10 +523,12 @@ class Program
 
                     new[] { new KeyboardButton("🔎 Порекомендувати") },
                     new[] { new KeyboardButton("📚 Моє переглянуте") },
-                    new[] { new KeyboardButton("⭐ Рейтинг") }
+                    new[] { new KeyboardButton("⭐ Рейтинг") },
+                    new[] { new KeyboardButton("💖 Улюблене") }
+                    
                 })
             {
-                ResizeKeyboard = true
+                ResizeKeyboard = true 
             };
 
             await botClient.SendMessage(chatId, "Привіт!Я бот з рекомендації книжок та фільмів", replyMarkup: keyboard,
@@ -349,7 +545,8 @@ class Program
 
                     new[] { new KeyboardButton("🔎 Порекомендувати") },
                     new[] { new KeyboardButton("📚 Моє переглянуте") },
-                    new[] { new KeyboardButton("⭐ Рейтинг") }
+                    new[] { new KeyboardButton("⭐ Рейтинг") },
+                    new[] { new KeyboardButton("💖 Улюблене") }
                 })
             {
                 ResizeKeyboard = true
@@ -368,7 +565,7 @@ class Program
                     new[] { new KeyboardButton("📌 Головне меню") },
                     new[] { new KeyboardButton("🔎 Порекомендувати книжку на основі мого преглянутого") },
                     new[] { new KeyboardButton("🔎 Порекомендувати фільм на основі мого преглянутого") },
-                    new[] { new KeyboardButton("Знайти схоже") },
+                    new[] { new KeyboardButton("🧠 Знайти схоже") },
 
                 })
             {
@@ -378,13 +575,19 @@ class Program
             cancellationToken: token);
         }
 
-        if (text == "знайти схоже")
+
+
+
+
+
+
+        if (text == "🧠 знайти схоже")
         {
             var keyboard = new ReplyKeyboardMarkup(new[]
                 {
                     new[] { new KeyboardButton("📌 Головне меню") },
-                    new[] { new KeyboardButton("книжка") },
-                    new[] { new KeyboardButton("фільм") },
+                    new[] { new KeyboardButton("📖 Книжка") },
+                    new[] { new KeyboardButton("🎥 Фільм") },
 
 
                 })
@@ -395,34 +598,41 @@ class Program
             cancellationToken: token);
         }
 
-        else if (text == "книжка")
+        else if (text == "📖 книжка")
         {
             userStates[chatId] = "waiting_for_similar_book";
 
 
-            var removeKeyboard = new ReplyKeyboardRemove();
+            var keyboard = new ReplyKeyboardMarkup(new[]
+                {
+                    new[] { new KeyboardButton("Відмінити") }
 
-            await botClient.SendMessage(
-                chatId,
-                "✍️ Введи назву книжки, яка тобі сподобалась:",
-                replyMarkup: removeKeyboard,
-                cancellationToken: token
-            );
+
+                })
+            {
+                ResizeKeyboard = true
+            };
+            await botClient.SendMessage(chatId, "✍️ Введи назву книжки, яка тобі сподобалась:", replyMarkup: keyboard,
+            cancellationToken: token);
+            
 
         }
 
-        else if (text == "фільм")
+        else if (text == "🎥 фільм")
         {
             userStates[chatId] = "waiting_for_similar_movie";
 
-            var removeKeyboard = new ReplyKeyboardRemove();
+            var keyboard = new ReplyKeyboardMarkup(new[]
+               {
+                    new[] { new KeyboardButton("Відмінити") }
 
-            await botClient.SendMessage(
-                chatId,
-                "✍️ Введи назву фільма, який тобі сподобався:",
-                replyMarkup: removeKeyboard,
-                cancellationToken: token
-            );
+
+                })
+            {
+                ResizeKeyboard = true
+            };
+            await botClient.SendMessage(chatId, "✍️ Введи назву фільма, який тобі сподобався:", replyMarkup: keyboard,
+            cancellationToken: token);
 
         }
 
@@ -433,9 +643,9 @@ class Program
             var keyboard = new ReplyKeyboardMarkup(new[]
                 {
                     new[] { new KeyboardButton("📌 Головне меню") },
-                    new[] { new KeyboardButton("Тільки на основі книжок") },
+                    new[] { new KeyboardButton("📖 Тільки на основі книжок") },
                    
-                    new[] { new KeyboardButton("На основі книжок та фільмів") },
+                    new[] { new KeyboardButton("📖🎥 На основі книжок та фільмів") },
 
                 })
             {
@@ -450,8 +660,8 @@ class Program
             var keyboard = new ReplyKeyboardMarkup(new[]
                 {
                     new[] { new KeyboardButton("📌 Головне меню") },
-                    new[] { new KeyboardButton("Тільки на основі фільмів") },                    
-                    new[] { new KeyboardButton("На основі фільмів та книжок") },
+                    new[] { new KeyboardButton("🎥 Тільки на основі фільмів") },                    
+                    new[] { new KeyboardButton("🎥📖 На основі фільмів та книжок") },
 
                 })
             {
@@ -461,7 +671,7 @@ class Program
             cancellationToken: token);
         }
 
-        else if (text == "тільки на основі книжок")
+        else if (text == "📖 тільки на основі книжок")
         {
             var userId = message.From.Id;
 
@@ -481,7 +691,7 @@ class Program
             }
         }
 
-        else if (text == "тільки на основі фільмів")
+        else if (text == "🎥 тільки на основі фільмів")
         {
             var userId = message.From.Id;
 
@@ -499,7 +709,7 @@ class Program
                 await botClient.SendMessage(chatId, $"⚠️ Помилка: {ex.Message}");
             }
         }
-        else if (text == "на основі книжок та фільмів")
+        else if (text == "📖🎥 на основі книжок та фільмів")
         {
             var userId = message.From.Id;
 
@@ -518,7 +728,7 @@ class Program
             }
         }
 
-        else if (text == "на основі фільмів та книжок")
+        else if (text == "🎥📖 на основі фільмів та книжок")
         {
             var userId = message.From.Id;
 
@@ -542,8 +752,8 @@ class Program
             var keyboard = new ReplyKeyboardMarkup(new[]
                {
                     new[] { new KeyboardButton("📌 Головне меню") },
-                    new[] { new KeyboardButton("Книжки") },
-                    new[] { new KeyboardButton("Фільми") },
+                    new[] { new KeyboardButton("📖 Книжки") },
+                    new[] { new KeyboardButton("🎥 Фільми") },
                     
 
                 })
@@ -554,15 +764,15 @@ class Program
             cancellationToken: token);
         }
 
-        if (text == "книжки")
+        if (text == "📖 книжки")
         {
 
             var keyboard = new ReplyKeyboardMarkup(new[]
               {
                     new[] { new KeyboardButton("📌 Головне меню") },
-                    new[] { new KeyboardButton("Додати книжку") },
-                    new[] { new KeyboardButton("Видалити книжку") },
-                    new[] { new KeyboardButton("Отримати пересказ книги") },
+                    new[] { new KeyboardButton("➕ Додати книжку") },
+                    new[] { new KeyboardButton("🗑️ Видалити книжку") },
+                    new[] { new KeyboardButton("🧠 Отримати пересказ книги") },
 
                 })
             {
@@ -596,20 +806,43 @@ class Program
                 await botClient.SendMessage(chatId, $"⚠️ Помилка: {ex.Message}");
             }
         }
-        if (text == "додати книжку")
+        if (text == "➕ додати книжку")
         {
+
             userStates[chatId] = "waiting_for_title";
             userTempData[chatId] = new Draft { Type = "book" };
 
-            await botClient.SendMessage(chatId, "✍️ Введи назву книжки:", replyMarkup: new ReplyKeyboardRemove());
+            
+            var keyboard = new ReplyKeyboardMarkup(new[]
+              {
+                    new[] { new KeyboardButton("Відмінити") }
+
+
+                })
+            {
+                ResizeKeyboard = true
+            };
+            await botClient.SendMessage(chatId, "✍️ Введи назву книжки:", replyMarkup: keyboard,
+            cancellationToken: token);
+
             return;
         }
 
-        if (text == "видалити книжку")
+        if (text == "🗑️ видалити книжку")
         {
             userStates[chatId] = "waiting_for_delete";
             
             var userId = message.From.Id;
+            var keyboard = new ReplyKeyboardMarkup(new[]
+               {
+                    new[] { new KeyboardButton("Відмінити") }
+
+
+                })
+            {
+                ResizeKeyboard = true
+            };
+            
 
             try
             {
@@ -632,7 +865,8 @@ class Program
                     booksOrMooviesList = formattedBookList
                 };
 
-                await botClient.SendMessage(chatId, $"Напишіть під яким номером знаходиться книжка яку ви хочете видалити", replyMarkup: new ReplyKeyboardRemove());
+                await botClient.SendMessage(chatId, $"Напишіть під яким номером знаходиться книжка яку ви хочете видалити", replyMarkup: keyboard,
+            cancellationToken: token);
             }
             catch (Exception ex)
             {
@@ -641,10 +875,20 @@ class Program
             return;
         }
 
-        if (text == "отримати пересказ книги")
+        if (text == "🧠 отримати пересказ книги")
         {
             userStates[chatId] = "waiting_for_summary";
             var userId = message.From.Id;
+            var keyboard = new ReplyKeyboardMarkup(new[]
+              {
+                    new[] { new KeyboardButton("Відмінити") }
+
+
+                })
+            {
+                ResizeKeyboard = true
+            };
+           
             try
             {
                 var response = await httpClient.GetAsync($"http://13.53.190.164:5000/api/book/get/{userId}");
@@ -666,7 +910,8 @@ class Program
                     booksOrMooviesList = formattedBookList
                 };
 
-                await botClient.SendMessage(chatId, $"Напишіть під яким номером знаходиться книжка переказ якої ви хочете побачити", replyMarkup: new ReplyKeyboardRemove());
+                await botClient.SendMessage(chatId, $"Напишіть під яким номером знаходиться книжка переказ якої ви хочете побачити", replyMarkup: keyboard,
+            cancellationToken: token);
             }
             catch (Exception ex)
             {
@@ -675,15 +920,15 @@ class Program
             return;
         }
 
-        if (text == "фільми")
+        if (text == "🎥 фільми")
         {
 
             var keyboard = new ReplyKeyboardMarkup(new[]
               {
                     new[] { new KeyboardButton("📌 Головне меню") },
-                    new[] { new KeyboardButton("Додати фільм") },
-                    new[] { new KeyboardButton("Видалити фільм") },
-
+                    new[] { new KeyboardButton("➕ Додати фільм") },
+                    new[] { new KeyboardButton("🗑️ Видалити фільм") },
+                    new[] { new KeyboardButton("🧠 Отримати пересказ фільма") },
                 })
             {
                 ResizeKeyboard = true
@@ -721,27 +966,130 @@ class Program
                 await botClient.SendMessage(chatId, $"⚠️ Помилка: {ex.Message}");
             }
         }
-        if (text == "додати фільм")
+        if (text == "➕ додати фільм")
         {
             userStates[chatId] = "waiting_for_title";
             
 
             userTempData[chatId] = new Draft { Type = "movie" };
-                await botClient.SendMessage(chatId, "✍️ Введи назву фільму:", replyMarkup: new ReplyKeyboardRemove());
+            var keyboard = new ReplyKeyboardMarkup(new[]
+              {
+                    new[] { new KeyboardButton("Відмінити") }
+
+
+                })
+            {
+                ResizeKeyboard = true
+            };
+            
+
+            await botClient.SendMessage(chatId, "✍️ Введи назву фільму:", replyMarkup: keyboard,
+            cancellationToken: token);
             return;
         }
 
-        if (text == "видалити фільм")
+        if (text == "🗑️ видалити фільм")
         {
+            userStates[chatId] = "waiting_for_delete";
 
+            var userId = message.From.Id;
+            var keyboard = new ReplyKeyboardMarkup(new[]
+             {
+                    new[] { new KeyboardButton("Відмінити") }
+
+
+                })
+            {
+                ResizeKeyboard = true
+            };
+
+
+            
+            try
+            {
+                var response = await httpClient.GetAsync($"http://13.53.190.164:5000/api/movie/get/{userId}");
+                response.EnsureSuccessStatusCode();
+
+                var responseText = await response.Content.ReadAsStringAsync();
+
+
+
+
+                List<string> UserBooks = JsonSerializer.Deserialize<List<string>>(responseText);
+
+
+                List<string> formattedBookList = UserBooks.Select((book, index) => $"{index + 1}. {book}").ToList();
+
+                userTempData[chatId] = new Draft
+                {
+                    Type = "movie",
+                    booksOrMooviesList = formattedBookList
+                };
+
+                await botClient.SendMessage(chatId, $"Напишіть під яким номером знаходиться книжка яку ви хочете видалити", replyMarkup: keyboard,
+            cancellationToken: token);
+            }
+            catch (Exception ex)
+            {
+                await botClient.SendMessage(chatId, $"⚠️ Помилка: {ex.Message}");
+            }
+            return;
+        }
+
+        if (text == "🧠 отримати пересказ фільма")
+        {
+            userStates[chatId] = "waiting_for_summary";
+            var userId = message.From.Id;
+            var keyboard = new ReplyKeyboardMarkup(new[]
+             {
+                    new[] { new KeyboardButton("Відмінити") }
+
+
+                })
+            {
+                ResizeKeyboard = true
+            };
+
+
+            
+            try
+            {
+                var response = await httpClient.GetAsync($"http://13.53.190.164:5000/api/movie/get/{userId}");
+                response.EnsureSuccessStatusCode();
+
+                var responseText = await response.Content.ReadAsStringAsync();
+
+
+
+
+                List<string> UserBooks = JsonSerializer.Deserialize<List<string>>(responseText);
+
+
+                List<string> formattedBookList = UserBooks.Select((book, index) => $"{index + 1}. {book}").ToList();
+
+                userTempData[chatId] = new Draft
+                {
+                    Type = "movie",
+                    booksOrMooviesList = formattedBookList
+                };
+
+                await botClient.SendMessage(chatId, $"Напишіть під яким номером знаходиться книжка переказ якої ви хочете побачити", replyMarkup: keyboard,
+            cancellationToken: token);
+            }
+            catch (Exception ex)
+            {
+                await botClient.SendMessage(chatId, $"⚠️ Помилка: {ex.Message}");
+            }
+            return;
         }
 
         if (text == "⭐ рейтинг")
         {
             var keyboard = new ReplyKeyboardMarkup(new[]
               {
-                    new[] { new KeyboardButton("Рейтинг книжок") },
-                    new[] { new KeyboardButton("Рейтинг фільмів") },
+                    new[] { new KeyboardButton("📌 Головне меню") },
+                    new[] { new KeyboardButton("⭐📖 Рейтинг книжок") },
+                    new[] { new KeyboardButton("⭐🎥 Рейтинг фільмів") },
                     
 
                 })
@@ -752,7 +1100,7 @@ class Program
             await botClient.SendMessage(chatId, $"Оберіть тип", replyMarkup: keyboard,
             cancellationToken: token);
         }
-        if(text == "рейтинг книжок")
+        if(text == "⭐📖 рейтинг книжок")
         {
             var keyboard = new ReplyKeyboardMarkup(new[]
               {
@@ -792,13 +1140,14 @@ class Program
                 await botClient.SendMessage(chatId, $"⚠️ Помилка: {ex.Message}");
             }
         }
-        if (text == "рейтинг фільмів")
+        if (text == "⭐🎥 рейтинг фільмів")
         {
             var keyboard = new ReplyKeyboardMarkup(new[]
              {
                     new[] { new KeyboardButton("🔎 Порекомендувати") },
                     new[] { new KeyboardButton("📚 Моє переглянуте") },
-                    new[] { new KeyboardButton("⭐ Рейтинг") }
+                    new[] { new KeyboardButton("⭐ Рейтинг") },
+                    new[] { new KeyboardButton("💖 Улюблене") }
 
                 })
             {
@@ -822,7 +1171,7 @@ class Program
                 List<string> UserBooks = JsonSerializer.Deserialize<List<string>>(responseText);
 
 
-                var messages = string.Join("\n", UserBooks.Select((books, index) => $"{index + 1}. {books}"));
+                var messages = string.Join("\n", UserBooks.Select((books, index) => $"{index + 1}. {books} "));
 
                 await botClient.SendMessage(chatId, $"Ось Рейтинг ваших переглянутих фільмів\n{messages}", replyMarkup: keyboard,
             cancellationToken: token);
@@ -832,6 +1181,97 @@ class Program
                 await botClient.SendMessage(chatId, $"⚠️ Помилка: {ex.Message}");
             }
         }
+        if (text == "💖 улюблене")
+        {
+
+            var keyboard = new ReplyKeyboardMarkup(new[]
+              {
+                    new[] { new KeyboardButton("📌 Головне меню") },
+                  new[] { new KeyboardButton("📖💖 Улюблені книжки") },
+                  new[] { new KeyboardButton("🎥💖 Улюблені фільми") },
+                })
+            {
+                ResizeKeyboard = true
+            };
+
+            var userId = message.From.Id;
+            await botClient.SendMessage(chatId, $"Виберіть тип", replyMarkup: keyboard,
+            cancellationToken: token);
+        }
+        if (text == "📖💖 улюблені книжки")
+        {
+
+            var keyboard = new ReplyKeyboardMarkup(new[]
+             {
+                    new[] { new KeyboardButton("📌 Головне меню") },
+                 
+                })
+            {
+                ResizeKeyboard = true
+            };
+
+            var userId = message.From.Id;
+            try
+            {
+                var response = await httpClient.GetAsync($"http://13.53.190.164:5000/api/book/isfavorite/get/{userId}");
+                response.EnsureSuccessStatusCode();
+
+                var responseText = await response.Content.ReadAsStringAsync();
+
+
+
+
+                List<string> UserBooks = JsonSerializer.Deserialize<List<string>>(responseText);
+
+
+                var messages = string.Join("\n", UserBooks.Select((books, index) => $"{index + 1}. {books} 💖"));
+
+                await botClient.SendMessage(chatId, $"Ось список ваших улюблених книжок\n{messages}", replyMarkup: keyboard,
+            cancellationToken: token);
+            }
+            catch (Exception ex)
+            {
+                await botClient.SendMessage(chatId, $"⚠️ Помилка: {ex.Message}");
+            }
+        }
+
+        if (text == "🎥💖 улюблені фільми")
+        {
+
+            var keyboard = new ReplyKeyboardMarkup(new[]
+             {
+                    new[] { new KeyboardButton("📌 Головне меню") },
+
+                })
+            {
+                ResizeKeyboard = true
+            };
+
+            var userId = message.From.Id;
+            try
+            {
+                var response = await httpClient.GetAsync($"http://13.53.190.164:5000/api/movie/isfavorite/get/{userId}");
+                response.EnsureSuccessStatusCode();
+
+                var responseText = await response.Content.ReadAsStringAsync();
+
+
+
+
+                List<string> UserBooks = JsonSerializer.Deserialize<List<string>>(responseText);
+
+
+                var messages = string.Join("\n", UserBooks.Select((books, index) => $"{index + 1}. {books} 💖"));
+
+                await botClient.SendMessage(chatId, $"Ось список ваших улюблених фільмів\n{messages}", replyMarkup: keyboard,
+            cancellationToken: token);
+            }
+            catch (Exception ex)
+            {
+                await botClient.SendMessage(chatId, $"⚠️ Помилка: {ex.Message}");
+            }
+        }
+
     }
 
    
