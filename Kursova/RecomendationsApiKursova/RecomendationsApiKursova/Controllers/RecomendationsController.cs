@@ -7,7 +7,7 @@ using RecomendationsApiKursova.BusinessLogic;
 
 namespace RecomendationsApiKursova.Controllers
 {
-    
+
     [ApiController]
     public class RecommendationsController : ControllerBase
     {
@@ -17,16 +17,16 @@ namespace RecomendationsApiKursova.Controllers
         [Route("api/recommendations/{type}")]
         public string FindRecommendations([FromBody] string[] value, string type)
         {
-            return _moviesAndBooksBL.GetRecommendations(value.ToList(), type);
+            return _moviesAndBooksBL.GetRecommendations(value.ToList(), type, "default");
 
         }
-        //http://13.53.190.164:5000/api/book/recommendations
+
         [HttpGet]
         [Route("api/getrecommendationsbook/{telegram_id}")]
         public string GetRecommendationsBooksByTelegramId(long telegram_id)
         {
 
-            return _moviesAndBooksBL.GetRecommendations(_moviesAndBooksBL.GetMoviesOrBooks(telegram_id, "book"), "book");
+            return _moviesAndBooksBL.GetRecommendations(_moviesAndBooksBL.GetMoviesOrBooksSortedByRating(telegram_id, "book"), "book", "byRating");
         }
 
         [HttpGet]
@@ -34,7 +34,7 @@ namespace RecomendationsApiKursova.Controllers
         public string GetRecommendationsMoviesByTelegramId(long telegram_id)
         {
 
-            return _moviesAndBooksBL.GetRecommendations(_moviesAndBooksBL.GetMoviesOrBooks(telegram_id, "movie"), "movie");
+            return _moviesAndBooksBL.GetRecommendations(_moviesAndBooksBL.GetMoviesOrBooksSortedByRating(telegram_id, "movie"), "movie", "byRating");
         }
 
         [HttpGet]
@@ -45,19 +45,14 @@ namespace RecomendationsApiKursova.Controllers
             return _moviesAndBooksBL.GetRecommendationSummary(bookOrMovie, type);
         }
 
-        
-
-        //http://13.53.190.164:5000/api/getrecommendationsbook/together/123456789
         [HttpGet]
         [Route("api/getrecommendations{type}/together/{telegram_id}")]
         public string GetRecommendationsBooksTogetherByTelegramId(long telegram_id, string type)
         {
 
-            return _moviesAndBooksBL.GetRecommendationsTogether(_moviesAndBooksBL.GetMoviesOrBooks(telegram_id, "movie"), _moviesAndBooksBL.GetMoviesOrBooks(telegram_id, "book"), $"{type}");
+            return _moviesAndBooksBL.GetRecommendationsTogether(_moviesAndBooksBL.GetMoviesOrBooksSortedByRating(telegram_id, "movie"), _moviesAndBooksBL.GetMoviesOrBooksSortedByRating(telegram_id, "book"), $"{type}");
         }
 
-
-        // GET: api/<RecomendationsController>
         [HttpGet]
         [Route("api/book/get/{telegram_id}")]
         public IEnumerable<string> GetBooks(long telegram_id)
@@ -66,7 +61,6 @@ namespace RecomendationsApiKursova.Controllers
             return _moviesAndBooksBL.GetMoviesOrBooks(telegram_id, "book");
         }
 
-        // GET: api/<RecomendationsController>
         [HttpGet]
         [Route("api/movie/get/{telegram_id}")]
         public IEnumerable<string> GetMovies(long telegram_id)
@@ -91,7 +85,6 @@ namespace RecomendationsApiKursova.Controllers
             return _moviesAndBooksBL.GetTopUsers();
         }
 
-        // GET: api/<RecomendationsController>
         [HttpGet]
         [Route("api/{type}/withrating/get/{telegram_id}")]
         public IEnumerable<string> GetBooksOrMoviesAndRating(long telegram_id, string type)
@@ -104,15 +97,9 @@ namespace RecomendationsApiKursova.Controllers
         [Route("api/{type}/isfavorite/get/{telegram_id}")]
         public IEnumerable<string> GetBooksOrMoviesIsFavorite(long telegram_id, string type)
         {
-
             return _moviesAndBooksBL.GetFavouriteMoviesOrBooks(telegram_id, type);
         }
 
-
-
-
-
-        // POST: http://localhost:5000/api/books/add/123456789
         [HttpPost]
         [Route("api/book/add/{title}/{rating}/{is_favorite}/{telegram_id}")]
         public void AddBook(long telegram_id, string title, int rating, bool is_favorite)
@@ -120,8 +107,6 @@ namespace RecomendationsApiKursova.Controllers
             _moviesAndBooksBL.AddMovieOrBook(telegram_id, title, "book", rating, is_favorite);
         }
 
-
-        // POST: http://localhost:5000/api/books/add/123456789
         [HttpPost]
         [Route("api/movie/add/{title}/{rating}/{is_favorite}/{telegram_id}")]
         public void AddMovie(long telegram_id, string title, int rating, bool is_favorite)
@@ -129,28 +114,9 @@ namespace RecomendationsApiKursova.Controllers
             _moviesAndBooksBL.AddMovieOrBook(telegram_id, title, "movie", rating, is_favorite);
         }
 
-        //// GET api/<RecomendationsController>/5
-        //[HttpGet("{id}")]
-        //public string Get(int id)
-        //{
-        //    return "value";
-        //}
-
-
-
-
-        //// PUT api/<RecomendationsController>/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
-
-
-
-        // DELETE api/<RecomendationsController>/5
         [HttpDelete("{id}")]
         [Route("api/{type}/delete/{title}/{telegram_id}")]
-        public void Delete(long telegram_id, string title,string type )
+        public void Delete(long telegram_id, string title, string type)
         {
             _moviesAndBooksBL.DeleteMovieOrBook(telegram_id, title, type);
         }
