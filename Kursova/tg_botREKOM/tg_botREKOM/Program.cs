@@ -22,7 +22,7 @@ class Program
 
     static void Main(string[] args)
     {
-        var client = new TelegramBotClient("7776464703:AAFbqKJEOEbR63Z2krGY5krY171jjNYBkEA");
+        var client = new TelegramBotClient("");
         client.StartReceiving(Update, Error);
         Console.ReadLine();
     }
